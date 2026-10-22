@@ -1239,7 +1239,10 @@ function generativeUiEnabled(environment: Environment): boolean {
 
 /** User Memory is opt-in: on only for "true", "1" or "on". */
 function intelligenceMemoryEnabled(environment: Environment): boolean {
-  const value = optional(environment, "OPENBOT_INTELLIGENCE_MEMORY")?.toLowerCase();
+  const value = optional(
+    environment,
+    "OPENBOT_INTELLIGENCE_MEMORY",
+  )?.toLowerCase();
   return value === "true" || value === "1" || value === "on";
 }
 

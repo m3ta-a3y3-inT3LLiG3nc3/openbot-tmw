@@ -348,7 +348,7 @@ function isHttpUrl(value: string) {
  * never anything that would be a leak if the memory store were read by someone else.
  */
 export const MEMORY_GUIDANCE = [
-  "Long-term memory: if you have save_memory / recall_memory tools, recall relevant memories at the start of a task and save only short, durable preferences (kind \"operational\") or facts (kind \"topical\") the person would want remembered. If you have no memory tools, ignore this.",
+  'Long-term memory: if you have save_memory / recall_memory tools, recall relevant memories at the start of a task and save only short, durable preferences (kind "operational") or facts (kind "topical") the person would want remembered. If you have no memory tools, ignore this.',
   "Never save secrets of any kind: passwords, API keys, tokens, PATs, private keys, card or bank numbers, one-time codes, or anything that looks like a credential.",
   "Never save family-private material (including anything about April) or anything concerning the Cowans or Builder Brokerz. If asked to remember such things, say you will not store them.",
   "If the person asks you to forget something, call forget_memory for it.",
