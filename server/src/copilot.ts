@@ -343,6 +343,17 @@ function isHttpUrl(value: string) {
  * Null for anything blank, so the caller has one thing to test rather than an empty paragraph to
  * detect.
  */
+/**
+ * What a Bot may keep about a person across conversations. Only durable preferences and facts;
+ * never anything that would be a leak if the memory store were read by someone else.
+ */
+export const MEMORY_GUIDANCE = [
+  "Long-term memory: if you have save_memory / recall_memory tools, recall relevant memories at the start of a task and save only short, durable preferences (kind \"operational\") or facts (kind \"topical\") the person would want remembered. If you have no memory tools, ignore this.",
+  "Never save secrets of any kind: passwords, API keys, tokens, PATs, private keys, card or bank numbers, one-time codes, or anything that looks like a credential.",
+  "Never save family-private material (including anything about April) or anything concerning the Cowans or Builder Brokerz. If asked to remember such things, say you will not store them.",
+  "If the person asks you to forget something, call forget_memory for it.",
+].join("\n");
+
 export function standingInstructionsGuidance(
   instructions: string | null | undefined,
 ): string | null {
@@ -432,6 +443,9 @@ export function builtInAgentConfiguration(
     prompt: [
       agent.systemPrompt,
       ...(standing ? [standing] : []),
+      // What may and may not become a long-term memory. Harmless when memory is off: the tools are
+      // simply not registered, and the paragraph says so.
+      MEMORY_GUIDANCE,
       /*
        * Unconditional, unlike the two below it.
        *
@@ -1785,6 +1799,28 @@ export function mountCopilotRuntime(
     // See IntelligenceKnowingANewThread.
     intelligence: intelligenceClient,
     licenseToken: intelligence.licenseToken,
+    /*
+     * User Memory, behind OPENBOT_INTELLIGENCE_MEMORY (default off).
+     *
+     * Configuring `memory` mounts /memories/* and, for agent runs, registers save/recall/forget
+     * memory tools filtered to the grant. Omitting it entirely is NOT the same as off once any
+     * other surface turns memory on, so when the switch is off we keep the option out and nothing
+     * is mounted. When on: each person's own memory only (scope `user`), the agent may write, the
+     * browser inspector may only read, and shared `project` memory stays off because one person's
+     * memories must never reach another. A request with no resolved person gets no memory.
+     */
+    ...(config.intelligenceMemory
+      ? {
+          memory: {
+            access: ({ user, consumer }) => {
+              if (!user?.id) return null;
+              return consumer === "client"
+                ? ({ user: "read", project: "none" } as const)
+                : ({ user: "read-write", project: "none" } as const);
+            },
+          },
+        }
+      : {}),
     // Carried on the events the runtime already sends, so OpenBot's traffic is separable from any
     // other deployment's. Adds no events of its own.
     telemetryProperties: {
