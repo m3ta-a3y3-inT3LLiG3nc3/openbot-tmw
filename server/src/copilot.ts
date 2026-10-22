@@ -1,6 +1,9 @@
 import type { Message, RunAgentInput } from "@ag-ui/client";
 import { type AbstractAgent, HttpAgent } from "@ag-ui/client";
-import type { BuiltInAgentConfiguration } from "@copilotkit/runtime/v2";
+import type {
+  BuiltInAgentConfiguration,
+  CopilotRuntimeMemoryConfig,
+} from "@copilotkit/runtime/v2";
 import {
   type CopilotKitIntelligence,
   CopilotRuntime,
@@ -1818,7 +1821,7 @@ export function mountCopilotRuntime(
                 ? ({ user: "read", project: "none" } as const)
                 : ({ user: "read-write", project: "none" } as const);
             },
-          },
+          } satisfies CopilotRuntimeMemoryConfig,
         }
       : {}),
     // Carried on the events the runtime already sends, so OpenBot's traffic is separable from any
