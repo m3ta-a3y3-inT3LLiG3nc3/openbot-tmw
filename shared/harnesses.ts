@@ -13,7 +13,19 @@ import catalogue from "./harnesses.json";
  * bun workspace, so `include_str!` takes the JSON directly. That is why the data lives in `.json`
  * and only the typing lives here.
  */
-export type Credential = "any-provider" | "anthropic" | "their-endpoint";
+/**
+ * What a harness needs before it can answer.
+ *
+ * `google` is its own variant rather than `any-provider` because Antigravity's harness requires a
+ * Gemini key wherever its base url points — "any provider the person already has" is exactly the
+ * promise it cannot keep, and a deployment holding only an OpenAI key would install a Bot that
+ * never answers.
+ */
+export type Credential =
+  | "any-provider"
+  | "anthropic"
+  | "google"
+  | "their-endpoint";
 export type Maintainer = "first-party" | "partnership" | "community";
 
 export type Harness = {
@@ -54,10 +66,34 @@ export type Harness = {
 export const HARNESSES: readonly Harness[] =
   catalogue.harnesses as readonly Harness[];
 
-/** What the web dialog may offer, in the catalogue's own order. */
+/**
+ * The partners a person adding a Bot looks for first, in the order the web lists them.
+ *
+ * The catalogue is ranked stars-first, which suits the desktop installer choosing an image to run
+ * but not somebody scanning for their own framework: Atai, October 19, read CrewAI, LlamaIndex and
+ * Agno at the top as "the ones on top don't make sense", and reported LangChain and ADK missing when
+ * they were fourth and fifth. These lead; everything else follows in the catalogue's own order.
+ */
+const WEB_LEAD: readonly string[] = [
+  "claude-agent-sdk",
+  "google-adk",
+  "antigravity",
+  "langgraph",
+];
+
+/** Where a harness sits in the web list: its lead position, or after every lead. */
+function webRank(harness: Harness): number {
+  const lead = WEB_LEAD.indexOf(harness.id);
+  return lead === -1 ? WEB_LEAD.length : lead;
+}
+
+/**
+ * What the web dialog may offer: the leads first, then the catalogue's order, which keeps "An agent
+ * you already run" last. The sort is stable, so the rows after the leads keep their ranking.
+ */
 export const WEB_HARNESSES: readonly Harness[] = HARNESSES.filter(
   (harness) => harness.webCreate,
-);
+).sort((a, b) => webRank(a) - webRank(b));
 
 /** The sentence to draw on a web surface: the override where there is one, else the installer's. */
 export function summaryFor(harness: Harness): string {

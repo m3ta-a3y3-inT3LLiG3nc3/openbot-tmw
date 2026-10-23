@@ -6,11 +6,13 @@
       "!**/dist",
       "!.",
       "!.superpowers",
+      "!**/.venv*",
       "!app/src/lib/generated/application-config.ts",
       "!app/src/routeTree.gen.ts",
       "!desktop/src-tauri/gen",
       "!**/target",
-      "!server/drizzle"
+      "!server/drizzle",
+      "!server/tests/fixtures/arcade-catalogue.json"
     ]
   },
   "formatter": {

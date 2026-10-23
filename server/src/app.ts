@@ -99,6 +99,7 @@ import type { OnboardingStore } from "./people/onboarding";
 import { MAX_PAGE, type PeopleStore } from "./people/store";
 import type { AccountModeSwitch } from "./plugins/account-mode";
 import type { ComposioBroker } from "./plugins/broker";
+import type { BrokerProvider } from "./plugins/access";
 import { createPluginRoutes } from "./plugins/routes";
 import { createSharedUseRoutes } from "./plugins/shared-use-routes";
 import type { SharedUseStore } from "./plugins/shared-use-store";
@@ -386,7 +387,7 @@ export function createApp(
    * configured, which is the correct degraded behaviour: a deployment with no Composio API key has
    * no app directory to offer, rather than one that lists apps nobody can connect.
    */
-  composio?: { broker: ComposioBroker },
+  composio?: { broker: ComposioBroker; provider: BrokerProvider },
   /** Native model OAuth stays server-side; callers hold only a separate local bearer. */
   modelProviderProxy?: ModelProviderProxy,
   userPreferences?: UserPreferencesStore,
@@ -483,6 +484,16 @@ export function createApp(
       selfHostBanner: selfHostBanner
         ? await selfHostBanner.shown()
         : config.selfHostBanner,
+      /*
+       * Whether this is somebody trying OpenBot on their own machine, not an organization's
+       * deployment. Onboarding reads it to explain where OpenBot can run, which only the person
+       * evaluating it needs and an organization's employees should never be pitched.
+       *
+       * Single-user mode, not a new switch: it is already true only with no identity provider and
+       * no address anybody else can reach (see `singleUserAllowed` in config.ts), which is exactly
+       * a local trial, and an operator cannot forget to set it.
+       */
+      localEvaluation: config.singleUser,
       transcription: Boolean(config.transcription),
       voice: Boolean(config.voice),
       /*
@@ -560,7 +571,7 @@ export function createApp(
         : [];
       if (!roles.includes("admin")) {
         return context.json(
-          { error: "Only an administrator may change identity providers." },
+          { error: "Only an admin can change identity providers." },
           403,
         );
       }
@@ -1005,7 +1016,7 @@ export function createApp(
      */
     if (context.var.actor.id === userId && role !== "admin") {
       return context.json(
-        { error: "You cannot remove your own administrator role." },
+        { error: "You can't remove your own admin role." },
         409,
       );
     }
@@ -1445,6 +1456,17 @@ export function createApp(
         // stores as running at this address — can be told apart from one a person hosts.
         config.managedAgent?.endpoint?.toString(),
         coworker?.shared?.use,
+        // So testing one of our own addresses knocks with the token the run will use, rather than
+        // reporting a refusal for a Bot this deployment started itself.
+        config.managedAgent
+          ? {
+              token: config.managedAgent.token,
+              endpoints: [
+                config.managedAgent.endpoint,
+                config.managedAgent.alsoRun,
+              ].filter((url): url is URL => url !== undefined),
+            }
+          : undefined,
       ),
     );
     // Choosing a coworker for an untagged message needs the same permission-filtered roster the

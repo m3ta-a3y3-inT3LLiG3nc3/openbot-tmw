@@ -8,7 +8,7 @@ Newest first. `Unreleased` is what is on `main` and not yet tagged.
 
 ## Unreleased
 
-**Before upgrading.** Five things change for an existing deployment:
+**Before upgrading.** Six things change for an existing deployment:
 - A hosted computer's browser is now headed by default. It uses a little more memory than headless
   did; set `COMPUTER_BROWSER_MODE=headless` (Helm: `computers.browserMode: headless`) to keep the old
   behaviour.
@@ -31,6 +31,174 @@ Newest first. `Unreleased` is what is on `main` and not yet tagged.
 - Migration `0056_sign_in_code_step` widens the check on `sign_in_requests.status` to allow
   `code_required` (below). A server and a computer must be upgraded together: an older computer has
   no `/sign-in/code`.
+- Migration `0060_app_access_requests` adds one table, `app_access_requests`, where a person's
+  request for an administrator to switch on a work app, grant it to a Bot, or connect a Shared app's
+  team account is kept, with who answered it and when. It starts empty and nothing is backfilled.
+
+### A Bot can send, draft and reply in Gmail
+
+OpenBot left out every Composio action that takes a file, because a Bot has no way to supply one.
+That also left out actions where the file is optional, such as an email's attachment, so Gmail's
+send, draft, reply and update-draft actions never appeared and a Bot could read mail but not send
+it. These actions are now offered without the optional file, and a call that includes one anyway is
+refused with a message saying to try again without it. An action that cannot run without a file,
+such as uploading one to Google Drive, is still left out. For an app that is already on, press
+Refresh tools on its page in Admin to list the new actions, then grant them to a Bot as usual.
+
+### Connect works for an app Composio already holds your account for
+
+Pressing Connect on a Composio app, from a conversation's Connect card or from Connections, could end
+in a refusal saying Composio already held a connected account for the app and that disconnecting it
+would clear the way. The app showed as not connected, so there was nothing to disconnect. This
+happened when Composio held the account and OpenBot had no record of it: on a fresh or upgraded
+install, or on a second local install signing in as the same person with the same Composio key. Connect
+now asks Composio again, records the account it holds, and shows the app as connected, the same way
+opening the app's page already did. A Shared app's team account is still recorded only by an admin.
+If Composio then reports no account after all, Connect says nothing was connected and asks you to
+press it again. It no longer tells you to disconnect anything.
+
+### A Bot with an app or web research can use its browser in a conversation again
+
+A Bot that held any app or research tool, such as Parallel Search, could not open a page, click or
+type in a conversation: every browser and computer step came back as unavailable, and the Bot
+fetched the page some other way instead. Its browser now works beside those tools, as it does for a
+Bot that holds none. Routines and other unattended turns are unchanged.
+
+### An app a Bot could not use asks to be connected once
+
+When a Bot reached for an app the person had not connected, such as Airtable, the conversation drew
+the Connect card twice, and still did after a reload. The built-in LangGraph Bot now names the message
+its tool calls belong to the way the conversation store does, so a conversation no longer keeps a
+second copy of every tool call, and a conversation that already has one draws each call once.
+
+### An app's steps are named for the app, never for the service behind it
+
+A conversation named a Composio app's work after the broker and the vendor's own prefix: "Used
+Composio Airtable", then "Airtable list bases". It now says "Used Airtable", and each step reads as
+the action, "List bases", with the app beside it. An Arcade app is named the same way, as the app
+rather than `arcade-Gmail`.
+
+### An app a Bot cannot use yet asks once per turn
+
+When a Bot's call to an unconnected app was refused, the Bot often also asked to show that app's
+card, and the conversation drew the same Connect card twice. Each app's card is now drawn once per
+turn; asking again in a new message can draw it again.
+
+### The Computer panel shows the Bot's screen when it opens
+
+Opening the Computer panel beside a conversation could leave it on "Waiting for the Bot's screen…"
+while the Bot browsed, because the panel slid in from off-screen and the screen counted as out of
+view for as long as it stayed open. The panel now starts showing the screen once it has opened.
+
+### Plainer words, and one word for each thing
+
+OpenBot now says **Bot** everywhere a person reads it, where screens used to mix Bot, agent, coworker
+and assistant; "agent" is kept only for an outside program you connect. It says **admin** rather
+than administrator, **conversation** rather than channel, and **OpenBot** rather than "this
+deployment" on pages anybody can open. Headings, descriptions, empty states, errors and the
+messages the server shows are shorter and say what happened and what to do next, across the home
+page, a Bot's pages, Capabilities, Connections, Settings, conversations and Admin. Admin keeps the
+exact setting names an admin needs, such as `COMPOSIO_API_KEY`. Text written for the model, such
+as tool descriptions and instructions, is unchanged.
+
+### Every settings screen is the same, slightly wider column
+
+Settings, Admin, Connections, Capabilities and each Bot's pages share one column width, now 720px instead of 630px, so
+no screen is wider than another and a row has room for its label beside its control. Sentences keep
+their comfortable reading width inside it. The audit log stays wider, because it is a table.
+
+### Capabilities and Connections sit beside Bots in the sidebar
+
+The sidebar's Skills entry becomes two, below Bots: **Capabilities** (`/capabilities`), with Skills
+(`/capabilities/skills`) and Memory (`/capabilities/memory`) as tabs under its title, Memory leaving
+Settings; and **Connections** (`/connections`), the apps your Bots use as you, which leaves Settings
+too. On the home page, Explore agents shows each Bot as a white card with its avatar on top, the same
+card as elsewhere. The old
+addresses — `/skills`, `/settings/connected-accounts` with any account beneath it, and
+`/settings/memory` — redirect to the new ones, keeping `?connected=`, `?linked=` and a skill being
+written or edited, so a consent begun before upgrading still lands on its page. OAuth, GitHub linking
+and the Slack link confirmation now send people to `/connections`.
+
+Connections is one searchable list. Apps you connect, apps on your organisation's account (marked
+"Team account") and your GitHub and Slack links are rows of the same kind, with those already in use
+first, and each opens its own page. GitHub's page holds your link, the repositories whose events can
+start a responsibility (formerly "GitHub events"), and a way to a Composio GitHub app where one is
+enabled, so GitHub is listed once; linking GitHub now comes back to that page. The reset for what
+you let shared Bots use moves to Settings → Approvals, as **Shared Bots**.
+
+### Each app on a Bot says whether you can use it, and you can ask an administrator for the rest
+
+A Bot's page now says, for every work app the Bot holds, what that app is for the person looking:
+ready, not connected yet, needing reconnecting, waiting on your organisation's shared account or on
+an administrator's approval of who the Bot reaches, not switched on or not finished setting up, or not
+given to this Bot. On somebody else's Team Bot it says whose account the app runs on: the owner's,
+which only the owner can reconnect, or your own, which the Bot asks to use the first time. Each comes with the one thing you can do about it —
+Connect or Reconnect your own account, or Request access where only an administrator can help — and
+apps are named by their own name ("Gmail", not "Composio Gmail"). In a conversation, a Bot that needs
+an app it cannot use now puts the same card in front of you instead of a sentence: an account you have
+not connected, a Shared app with no team account, an account the vendor no longer holds, and — through
+a new `show_app_access` tool every Bot holds — an app that is switched off or not granted to it. The
+card reads the app's current state when it is drawn, so it never offers a step already taken.
+Administrators see waiting requests at the top of Plugins, a count on each app's row, and a Requests
+section on the app's own page, where Approve switches the app on and grants the Bot the app's
+read-only actions in one press (or says what has to be done first; other actions are chosen on the
+Bot's page for the app) and Dismiss closes the request. Requests name who asked; nobody's connection
+status is shown to administrators. A person may have 20 requests waiting at once.
+
+A connection the vendor turns out to have lost now reads as lost everywhere once a call finds out: a
+Composio account the vendor no longer holds is removed so it can be connected again, and a Google
+Drive or Notion connection whose refresh token the vendor refuses is marked withdrawn, with Reconnect
+on the card instead of a tool error. A Memory source that fails for the same reasons says so in words
+rather than showing the card's marker.
+
+On a deployment with no `COMPOSIO_API_KEY`, Settings → Connected accounts no longer lists Composio
+apps, which nobody could connect there. An app's own page, reached from an older link, says it is not
+available yet and that an administrator has to finish setting it up, instead of naming the setting.
+The administrator's page for the app still names `COMPOSIO_API_KEY`.
+
+### A new desktop install starts its server again
+
+A desktop install of v0.2.0 stopped at start with `server stopped straight away (exit status: 1)` and
+`Cannot find module '../../../agent-computer/src/egress'`. The server imports its egress rules from
+`agent-computer`, and the desktop app did not copy that folder when it laid out the deployment. It
+does now, and a test fails if the deployment's code imports anything the desktop app does not copy.
+An install laid out by an earlier app is asked to finish installing when it starts; installing
+downloads the same release again with the missing folder. Settings and data are kept.
+
+### A new Bot is made from a sheet that asks where it runs first
+
+New Bot opens a sheet instead of the four-screen wizard. It asks where the Bot will run, with Run it
+here chosen; a framework you run asks for its address next, and Continue checks from the server that
+something answers there before going on. The name, title, instructions and who can see it come
+last. A Bot given only a name gets a title and instructions the server accepts: for one that runs
+here, the instructions are a short prompt naming it. The frameworks list Claude Agent SDK, Google
+ADK, Google Antigravity and LangGraph first; AG2, Agno and Langroid now show their marks, and every
+mark sits on a light tile in dark mode.
+
+### A run of tool calls folds into one line
+
+Consecutive tool calls a Bot makes without drawing anything now collapse into one line ("Used 5
+tools") that opens to show each, as connector calls already did. Calls that draw an interface, and
+calls waiting on the person, still stand on their own.
+
+### Onboarding says which pictures are pictures, and tells a local install more
+
+The illustrations in onboarding sit in a muted frame and can no longer be clicked, tabbed into or
+read out as controls. On a single-user install, three more slides follow: that its data stays on
+the machine, which agents it can bring, and how to deploy it for an organization.
+`/api/capabilities` gains `localEvaluation`, true in single-user mode.
+
+### An HTML-only email reaches its trigger as the sender wrote it
+
+An email trigger reads an HTML-only mail by stripping its tags, and the character references stayed:
+the Bot read `AT&amp;T`, `we&#8217;re` and `Q3&nbsp;numbers`. Numeric references, `&amp;`, `&lt;`,
+`&gt;`, `&quot;`, `&apos;` and `&nbsp;` are now decoded, once, so `&amp;lt;` reads as `&lt;`.
+
+### An email in another charset reaches its trigger as the sender wrote it
+
+A base64 or quoted-printable email part was always read as UTF-8, whatever charset its Content-Type
+named, so an `iso-8859-1` mail reached the Bot with every accented letter turned into `�`. Each part
+is now decoded in the charset it names, and a charset the runtime does not know still reads as UTF-8.
 
 ### The Bot's screen opens only when there is something to watch
 
@@ -51,6 +219,12 @@ on a still screen, for an action that never happened.
   three — but the Bot was still offered the tools, so it reached for one, was refused, and spent the
   turn saying so. The tools a switch turns off are now withheld from the Bot in the first place.
 
+### A repeated minute in a routine's schedule is described once
+
+A schedule like `0,30,0 9 * * *` fires at 09:00 and 09:30, but the routines page and the model were
+told "Every day at 09:00, 09:00 and 09:30". Repeated minutes are now said once, as repeated weekdays
+already were.
+
 ### An app you have not connected is offered where you are reading
 
 A Bot asked to use an app whose account the person had not connected answered with the name of a
@@ -63,6 +237,12 @@ thing itself — a card naming the app, with a Connect button.
 - It covers an account that was never connected, one disconnected while a call was in flight, and
   access that was withdrawn. An app shared across the deployment still says to ask an administrator,
   since the person reading cannot connect it.
+
+### No-sign-in startup rejects addresses without a host
+
+With `OPENBOT_SINGLE_USER=true`, an address such as `example.com:3010` in `OPENBOT_PUBLIC_URL`,
+`OPENBOT_APP_URL` or `TRUSTED_ORIGINS` now refuses startup. It previously counted as a private
+network address and only warned, even though the missing URL scheme left its host unidentified.
 
 ### A reply's tool calls fold into one line
 
@@ -299,6 +479,20 @@ in a channel is cancelled. GitHub links through a GitHub App's user sign-in, set
 `GITHUB_APP_CLIENT_ID` and `GITHUB_APP_CLIENT_SECRET` (both or neither); the server refuses to start
 with them and no public URL. Nothing reads the links yet: they are what GitHub alerts and reviews will
 build on. Migration `0053_identity_links` only adds tables.
+
+### A credential written as the word after a flag is redacted
+
+`docker login -p secret`, `sshpass -p secret` and `redis-cli -a secret` were recorded with the
+password in clear: the rules recognised a flag whose name says what it carries, and mysql's attached
+`-psecret`, but not a credential passed as the word after the flag. `redis-cli -ahunter2` was worse —
+the attached form reads as a flag called `-asecret`, so the rule for a flag named after a secret
+redacted the word *after* it and left the password. A URL with no user, `redis://:secret@host`, was
+missed the same way, and so were curl's proxy credentials in `--proxy-user` where `-u` and `--user`
+were covered. All of them are now redacted, in the command kept for Action Recording and in the copy
+exported to a telemetry collector. A password separated from `-p` by a space is left alone: mysql
+asks for it at the prompt and the word after the flag is the database name. Each of these rules ends where its
+command does, so the port in `sshpass -p secret ssh -p 2222`, or in a `docker run -p 8080:80` on the
+line after a `docker login`, is left alone.
 
 ### An app's account can belong to the team
 

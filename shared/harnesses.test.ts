@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { HARNESSES } from "./harnesses";
+import { HARNESSES, WEB_HARNESSES } from "./harnesses";
 
 test("carries every row the desktop picker offers, in its order", () => {
   expect(HARNESSES.map((h) => h.id)).toEqual([
@@ -8,6 +8,7 @@ test("carries every row the desktop picker offers, in its order", () => {
     "agno",
     "langgraph",
     "google-adk",
+    "antigravity",
     "pydantic-ai",
     "microsoft-agent-framework",
     "claude-agent-sdk",
@@ -19,11 +20,29 @@ test("carries every row the desktop picker offers, in its order", () => {
   ]);
 });
 
+test("leads the web list with the partners people look for, keeping the rest in order", () => {
+  expect(WEB_HARNESSES.map((h) => h.id)).toEqual([
+    "claude-agent-sdk",
+    "google-adk",
+    "antigravity",
+    "langgraph",
+    "crewai",
+    "llamaindex",
+    "agno",
+    "pydantic-ai",
+    "microsoft-agent-framework",
+    "strands",
+    "ag2",
+    "langroid",
+    "byo-url",
+  ]);
+});
+
 test("the brands with no usable mark carry none", () => {
   const unmarked = HARNESSES.filter((h) => h.mark === null)
     .map((h) => h.id)
     .sort();
-  expect(unmarked).toEqual(["ag2", "agno", "byo-url", "langroid"]);
+  expect(unmarked).toEqual(["byo-url"]);
 });
 
 /*
@@ -61,4 +80,27 @@ test("every row an image publishes names the directory it is built from", () => 
   expect(crewai?.image).toBe("agent-crewai");
   expect(crewai?.healthPath).toBe("/health");
   expect(crewai?.port).toBe(4202);
+});
+
+/*
+ * Antigravity only ever runs on Gemini: its README says the harness requires a Gemini API key
+ * wherever `base_url` points. `any-provider` would let a deployment holding only an OpenAI key
+ * install it and get a Bot that cannot answer — the shape of failure `webCreate: false` exists to
+ * stop for Mastra.
+ */
+test("marks Antigravity as needing Google's key rather than any provider's", () => {
+  const antigravity = HARNESSES.find((h) => h.id === "antigravity");
+  expect(antigravity?.credential).toBe("google");
+  expect(antigravity?.name).toBe("Google Antigravity");
+  expect(antigravity?.image).toBe("agent-antigravity");
+  expect(antigravity?.port).toBe(4214);
+  expect(antigravity?.mark).toBe("antigravity");
+  expect(antigravity?.webCreate).toBe(true);
+});
+
+test("gives every row a credential the type actually names", () => {
+  const known = ["any-provider", "anthropic", "google", "their-endpoint"];
+  for (const harness of HARNESSES) {
+    expect(known).toContain(harness.credential);
+  }
 });

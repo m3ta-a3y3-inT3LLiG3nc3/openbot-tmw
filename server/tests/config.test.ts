@@ -530,6 +530,15 @@ describe("deployment configuration", () => {
       { TRUSTED_ORIGINS: "http://localhost:3010,https://openbot.example.com" },
     ],
     ["an address that is not a URL at all", { OPENBOT_PUBLIC_URL: "openbot" }],
+    [
+      "a public URL missing its scheme",
+      { OPENBOT_PUBLIC_URL: "example.com:3010" },
+    ],
+    ["an app URL missing its scheme", { OPENBOT_APP_URL: "example.com:3010" }],
+    [
+      "a trusted origin missing its scheme",
+      { TRUSTED_ORIGINS: "http://localhost:3010,example.com:3010" },
+    ],
   ])("refuses no sign-in combined with %s", (_label, published) => {
     expect(() =>
       loadConfig({ ...withoutSignIn, ...OPEN, ...published }),
@@ -1200,4 +1209,20 @@ test("a Composio key is read when set and absent when not", () => {
     loadConfig({ ...baseEnvironment, COMPOSIO_API_KEY: "  ak_example  " })
       .composioApiKey,
   ).toBe("ak_example");
+});
+
+test("an Arcade key and a broker provider are read, and an unknown provider is refused", () => {
+  const unset = loadConfig(baseEnvironment);
+  expect(unset).toHaveProperty("arcadeApiKey", undefined);
+  expect(unset).toHaveProperty("brokerProvider", undefined);
+  const set = loadConfig({
+    ...baseEnvironment,
+    ARCADE_API_KEY: "  arc_example  ",
+    OPENBOT_BROKER_PROVIDER: " arcade ",
+  });
+  expect(set.arcadeApiKey).toBe("arc_example");
+  expect(set.brokerProvider).toBe("arcade");
+  expect(() =>
+    loadConfig({ ...baseEnvironment, OPENBOT_BROKER_PROVIDER: "zapier" }),
+  ).toThrow(/OPENBOT_BROKER_PROVIDER must be "composio" or "arcade"/);
 });
