@@ -1,11 +1,9 @@
-ag-ui-crewai
-uvicorn[standard]
-# litellm 1.106.0 imports `CacheableResult` from `mcp.types`, which exists only in mcp 2.x, while
-# ag-ui-crewai 1.0.0 requires mcp<2. The two cannot both be satisfied, so every CrewAI run failed
-# with `APIConnectionError: cannot import name 'CacheableResult' from 'mcp.types'` — a model call
-# reporting a missing import, which reads as a network fault and is not one.
-#
-# Held here rather than raising mcp, because mcp>=2 is only reachable by letting the resolver walk
-# ag-ui-crewai back to 0.3.1 and crewai to 1.6.1. 1.105.1 does not reference the symbol at all and
-# leaves every other version exactly where it was. Lift this when ag-ui-crewai supports mcp 2.
-litellm<1.106.0
+# Pinned to the set verified together on 2026-10-22 (29/29 agent-crewai tests pass on Python 3.12).
+# ag-ui-crewai 1.0.0 requires mcp<2, and litellm>=1.106.0 needs mcp 2.x (`CacheableResult`), so
+# litellm stays below 1.106 (see requirements-test.txt) and mcp stays on 1.x until ag-ui-crewai
+# supports mcp 2. Bump these together, never one at a time.
+ag-ui-crewai==1.0.0
+crewai==1.15.28
+litellm==1.105.3
+mcp==1.28.1
+uvicorn[standard]==0.54.0
