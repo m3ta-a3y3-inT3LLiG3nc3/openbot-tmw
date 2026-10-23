@@ -357,6 +357,23 @@ export const MEMORY_GUIDANCE = [
   "If the person asks you to forget something, call forget_memory for it.",
 ].join("\n");
 
+/**
+ * Everything a deployment tells every built-in Bot about what it has, joined into the one slot the
+ * resolver already carries: the computer when one is configured, and long-term memory only when
+ * OPENBOT_INTELLIGENCE_MEMORY is on. With neither, nothing is added and the prompt is byte for byte
+ * what it was before either existed.
+ */
+export function deploymentGuidance(
+  computerGuidance: string | undefined,
+  intelligenceMemory: boolean | undefined,
+): string | undefined {
+  const parts = [
+    ...(computerGuidance ? [computerGuidance] : []),
+    ...(intelligenceMemory ? [MEMORY_GUIDANCE] : []),
+  ];
+  return parts.length > 0 ? parts.join("\n\n") : undefined;
+}
+
 export function standingInstructionsGuidance(
   instructions: string | null | undefined,
 ): string | null {
@@ -446,9 +463,6 @@ export function builtInAgentConfiguration(
     prompt: [
       agent.systemPrompt,
       ...(standing ? [standing] : []),
-      // What may and may not become a long-term memory. Harmless when memory is off: the tools are
-      // simply not registered, and the paragraph says so.
-      MEMORY_GUIDANCE,
       /*
        * Unconditional, unlike the two below it.
        *

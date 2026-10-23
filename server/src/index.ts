@@ -116,6 +116,7 @@ import {
 import { createSnapshotStore } from "./computer/snapshot-store";
 import { loadConfig } from "./config";
 import {
+  deploymentGuidance,
   type IdentifyActor,
   type IdentifyUser,
   mountCopilotRuntime,
@@ -159,6 +160,7 @@ import {
   createIntelligenceClient,
   observeIntelligenceAuthentication,
 } from "./intelligence-client";
+import { reportIntelligenceEntitlement } from "./intelligence-entitlement-check";
 import {
   createLearningAutoAssign,
   probeLearningContainer,
@@ -177,8 +179,8 @@ import { createMemoryDefaults } from "./memory/defaults";
 import { createMemoryIngestion } from "./memory/ingestion";
 import { createIntelligenceMemory } from "./memory/intelligence";
 import { createMemoryStore } from "./memory/store";
-import { reportModelAvailability } from "./model-availability-check";
 import { memoryTools } from "./memory/tools";
+import { reportModelAvailability } from "./model-availability-check";
 import { createSignInNotifier, createSignInResumer } from "./passwords/resume";
 import { createSignInService } from "./passwords/service";
 import { createPasswordStore } from "./passwords/store";
@@ -238,7 +240,6 @@ import { createRoutineRunner } from "./routines/runner";
 import { createRoutineStore } from "./routines/store";
 import { createIntentRouter } from "./routing/classify";
 import { createModelCompleter } from "./routing/model";
-import { reportIntelligenceEntitlement } from "./intelligence-entitlement-check";
 import { createSelfHostBanner } from "./self-host-banner";
 import { createTeamBots } from "./team-bots/team-bots";
 import {
@@ -1610,7 +1611,10 @@ const actorAgentResolver = createActorAgentResolver({
       proactiveReadOnlyRefs,
     ),
   signRunForActor,
-  computerGuidance: config.computer ? COMPUTER_GUIDANCE : undefined,
+  computerGuidance: deploymentGuidance(
+    config.computer ? COMPUTER_GUIDANCE : undefined,
+    config.intelligenceMemory,
+  ),
   loadVendors,
   selectionForActor,
   agentFetch,
