@@ -17,7 +17,9 @@ import {
   buildAgents,
   builtInAgentConfiguration,
   createRequestAgents,
+  deploymentGuidance,
   type LoadInstructions,
+  MEMORY_GUIDANCE,
   registeredAgentFromRow,
   resolveRuntimeAgents,
   runtimeModelForEnvironment,
@@ -2583,5 +2585,26 @@ describe("where an attachment reaches the model, and where it deliberately does 
       (messages[4] as { content?: { source?: unknown }[] }).content?.[0]
         ?.source,
     ).toMatchObject({ type: "data" });
+  });
+});
+
+describe("long-term memory guidance", () => {
+  test("adds nothing when memory is off and there is no computer", () => {
+    expect(deploymentGuidance(undefined, false)).toBeUndefined();
+    expect(deploymentGuidance(undefined, undefined)).toBeUndefined();
+  });
+
+  test("leaves the computer guidance untouched when memory is off", () => {
+    expect(deploymentGuidance("Use the computer.", false)).toBe(
+      "Use the computer.",
+    );
+  });
+
+  test("tells every built-in Bot the memory rules when memory is on", () => {
+    expect(deploymentGuidance(undefined, true)).toBe(MEMORY_GUIDANCE);
+    const both = deploymentGuidance("Use the computer.", true);
+    expect(both).toBe(`Use the computer.\n\n${MEMORY_GUIDANCE}`);
+    expect(MEMORY_GUIDANCE).toContain("Never save secrets");
+    expect(MEMORY_GUIDANCE).toContain("Builder Brokerz");
   });
 });
