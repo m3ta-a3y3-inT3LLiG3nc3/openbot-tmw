@@ -1,0 +1,129 @@
+{
+  "empire": "M3ta a3y3 Int3llig3nc3 3mpir3",
+  "owner": "m3ta-a3y3-inT3LLiG3nc3",
+  "total_repositories": 267,
+  "architecture_layers": {
+    "layer_0_infrastructure_brain": {
+      "description": "Cognitive memory, semantic indexing, and knowledge graph layer",
+      "hub": "OB1-m3ta-0s",
+      "mcp_endpoint": "http://localhost:8000",
+      "repos": [
+        "brainoutside-tmw",
+        "gbrain",
+        "OB1-m3ta-0s",
+        "ODS-th3-m3ta-way",
+        "open-knowledge-m3ta-a3y3",
+        "OpenKnowledge-tmw",
+        "supermemory-tmw",
+        "TencentDB-Agent-Memory-tmw"
+      ]
+    },
+    "layer_1_orchestration_workspaces": {
+      "description": "AI Coworker workspace, UI, and protocol bridges",
+      "hub": "openbot-tmw",
+      "repos": [
+        "ag-ui-tmw",
+        "agent-desktop",
+        "aionui-tmw",
+        "BrowserOStmw",
+        "DesktopCommanderMCP",
+        "dsh-desktop",
+        "Herald-OS",
+        "openbot",
+        "openbot-tmw",
+        "OpenIntelligentUI"
+      ]
+    },
+    "layer_2_agent_harnesses": {
+      "description": "Agent execution runtimes and framework harnesses",
+      "active_harnesses": [
+        "agent-antigravity (port 4214)",
+        "agent-adk (port 4208)",
+        "deepseek-harness-tmw",
+        "harness2"
+      ],
+      "repos": [
+        "antigravity-omarchy",
+        "antigravity-sdk-python",
+        "deepseek-harness-tmw",
+        "DeepSeek-Reasonix-tmw",
+        "harness2",
+        "Mobile-Harness-tmw",
+        "phone-harness-tmw"
+      ]
+    },
+    "layer_3_autonomous_agents": {
+      "description": "Autonomous agent engines and swarms",
+      "hub": "hermes-agent-TMW",
+      "repos": [
+        "aider-tmw",
+        "awesome-hermes-agent",
+        "dyad",
+        "Ghostex",
+        "Ghostex-extensions",
+        "hermes-agency-tmw",
+        "Hermes-agent-android-PC-companion-app",
+        "hermes-agent-TMW",
+        "Hermes-Bot-Mode-tmw",
+        "Hermes-Dotz",
+        "hermes-mobile-adapter",
+        "openclaw-tmw",
+        "OpenHands",
+        "openinterpreter-tmw",
+        "OpenManus",
+        "OpenManus-new-"
+      ]
+    },
+    "layer_4_mcp_tools_and_connectors": {
+      "description": "Model Context Protocol servers, devices, and tool integrations",
+      "repos": [
+        "agentphone-mcp",
+        "cinema4d-mcp",
+        "claude-code-notion-plugin",
+        "composio",
+        "DesktopCommanderMCP",
+        "firecrawl-tmw",
+        "gemini-notebook-mcp-cli",
+        "notion-cookbook",
+        "notion-mcp-server",
+        "notion-sdk-js",
+        "notion-sdk-typescript-starter"
+      ]
+    },
+    "layer_5_skills_ecosystem": {
+      "description": "Composable agent skills, prompts, and tool curricula",
+      "hub": "superpowers-tmw",
+      "repos": [
+        "agentskills",
+        "ai-design-skills",
+        "awesome-claude-skills",
+        "book-to-skill-tmw",
+        "jakubkrehel-skills",
+        "marketingskills-tmw",
+        "omnisocials-agent-skills",
+        "openskills",
+        "reverse-skill-tmw",
+        "scientific-agent-skills",
+        "skills",
+        "skills-codex-tmw",
+        "skills-engineering-tmw",
+        "skills-tmw",
+        "skills-tmw2",
+        "SkillSpector-tmw",
+        "skillsv2-tmw2",
+        "superpowers-tmw"
+      ]
+    }
+  },
+  "active_local_checkouts": [
+    "OB1-m3ta-0s",
+    "ag-ui-tmw",
+    "agent-browser-tmw",
+    "agentphone-mcp",
+    "deepseek-harness-tmw",
+    "harness2",
+    "hermes-agent-TMW",
+    "openbot-tmw",
+    "superpowers-tmw"
+  ]
+}
