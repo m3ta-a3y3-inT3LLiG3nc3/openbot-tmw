@@ -232,3 +232,16 @@ skills:
       save_bot once, at the end. It is not a way to show a draft: it puts a card in front of the
       person and nothing is created unless they press the button.
     tools: []
+
+  - slug: m3ta-os-memory
+    title: M3ta-0s Open Brain Memory
+    summary: Search and store persistent memory, notes, and evidence in M3ta-0s Open Brain.
+    instructions: >-
+      Use the Open Brain memory tools to search past context, recalled memories, and evidence before answering.
+      When instructed to remember or record evidence, capture it back to Open Brain.
+    tools:
+      - open-brain/search_thoughts
+      - open-brain/capture_thought
+      - open-brain/recall_agent_memory
+      - open-brain/writeback_agent_memory
+

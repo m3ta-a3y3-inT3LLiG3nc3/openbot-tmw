@@ -20,6 +20,7 @@ agents:
     skills:
       - bot-creator
       - skill-creator
+      - m3ta-os-memory
   - id: knowledge
     name: Knowledge
     title: Company Knowledge
@@ -90,3 +91,5 @@ agents:
     endpoint: ${PICKED_HARNESS_URL:-}
     # Which agent on that server, for a Mastra roster. Blank means the only one there.
     remote_agent_id: ${PICKED_HARNESS_AGENT_ID:-}
+    skills:
+      - m3ta-os-memory
