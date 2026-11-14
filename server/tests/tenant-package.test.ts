@@ -419,14 +419,13 @@ describe("tenant YAML validation", () => {
           "You are a helpful general assistant. Give clear, concise, and accurate answers.",
       },
       /*
-       * `bot-creator` and `skill-creator` are gates rather than preferences. `bot-creator` is what
-       * makes the app offer `list_bots`, `read_bot`, `list_bot_skills` and `save_bot`; `skill-creator`
-       * is what makes it offer the four tools that turn an interview into a saved skill. Dropped from
-       * the package, either feature stops working with nothing on any screen to say why, which is why
-       * the pairing is asserted here rather than left to whoever edits the YAML next.
-       * `m3ta-os-memory` is assigned beside them.
+       * One skill each, and both are gates rather than preferences. `bot-creator` is what makes the
+       * app offer `list_bots`, `read_bot`, `list_bot_skills` and `save_bot`; `skill-creator` is what
+       * makes it offer the four tools that turn an interview into a saved skill. Dropped from the
+       * package, either feature stops working with nothing on any screen to say why, which is why the
+       * pairing is asserted here rather than left to whoever edits the YAML next.
        */
-      skills: ["bot-creator", "skill-creator", "m3ta-os-memory"],
+      skills: ["bot-creator", "skill-creator"],
     });
     // The pairing the shipped package makes, which is the whole reason Knowledge narrows to document
     // tools rather than being offered everything its grants hold.

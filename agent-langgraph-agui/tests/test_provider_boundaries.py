@@ -12,7 +12,6 @@ from threading import Thread
 
 import httpx2
 import pytest
-from anthropic._constants import ANTHROPIC_API_VERSION
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -338,9 +337,8 @@ async def test_anthropic_selection_reaches_anthropic_boundary_without_openai_key
     assert result["messages"][0].content == "anthropic proof"
     assert "OPENAI_API_KEY" not in os.environ
     assert captured[0]["url"] == "http://127.0.0.1:4311/v1/messages"
-    # The SDK sends the key as a bearer token and names its own API version.
-    assert captured[0]["headers"]["authorization"] == "Bearer sk-ant-openbot-ci"
-    assert captured[0]["headers"]["anthropic-version"] == ANTHROPIC_API_VERSION
+    assert captured[0]["headers"]["x-api-key"] == "sk-ant-openbot-ci"
+    assert captured[0]["headers"]["anthropic-version"] == "2023-06-01"
     assert captured[0]["body"]["model"] == request_model
     assert captured[0]["body"]["messages"] == [
         {"role": "user", "content": "Say hello."}
