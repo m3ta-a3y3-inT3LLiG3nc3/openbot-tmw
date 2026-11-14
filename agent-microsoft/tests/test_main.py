@@ -189,7 +189,12 @@ def test_an_anthropic_key_uses_the_official_endpoint_when_compose_sets_a_blank_u
 
     async def respond(transport, request):
         seen.append(
-            (request.url.scheme, request.url.host, request.url.path, request.headers.get("x-api-key"))
+            (
+                request.url.scheme,
+                request.url.host,
+                request.url.path,
+                request.headers.get("authorization"),
+            )
         )
         async with httpx2.ASGITransport(app=provider_app) as local_provider:
             return await local_provider.handle_async_request(request)
@@ -214,7 +219,9 @@ def test_an_anthropic_key_uses_the_official_endpoint_when_compose_sets_a_blank_u
         "/", json=RUN, headers={"x-openbot-agent-token": TOKEN}
     )
 
-    assert seen == [("https", "api.anthropic.com", "/v1/messages", "test-key")]
+    assert seen == [
+        ("https", "api.anthropic.com", "/v1/messages", "Bearer test-key")
+    ]
     assert provider_seen == [("anthropic", "claude-sonnet-4-5")]
     assert response.status_code == 200
     assert '"RUN_FINISHED"' in response.text
