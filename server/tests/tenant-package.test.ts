@@ -1011,6 +1011,43 @@ describe("tenant package agent profile synchronization", () => {
     });
     expect(after).toEqual(before);
   });
+
+  test("re-homes installer-managed picked-harness across packages without collision", async () => {
+    const harnessId = "picked-harness";
+    const agentA = packageAgent({
+      id: harnessId,
+      name: "Picked Harness A",
+      title: "Picked Harness Title A",
+      roleDescription: "Harness A description.",
+      avatarSeed: "picked-harness",
+    });
+    const packageA = loadedPackage(agentA);
+    const packageARow = await synchronizeTenantPackage(database, packageA);
+    createdAgentIds.push(harnessId);
+    createdPackageIds.push(packageARow.id);
+
+    const agentB = packageAgent({
+      id: harnessId,
+      name: "Picked Harness B",
+      title: "Picked Harness Title B",
+      roleDescription: "Harness B description.",
+      avatarSeed: "picked-harness",
+    });
+    const packageB = loadedPackage(agentB);
+    const packageBRow = await synchronizeTenantPackage(database, packageB);
+    createdPackageIds.push(packageBRow.id);
+
+    const [canonical] = await database
+      .select({ id: agents.id, packageId: agents.packageId, name: agents.name })
+      .from(agents)
+      .where(eq(agents.id, harnessId));
+
+    expect(canonical).toEqual({
+      id: harnessId,
+      packageId: packageBRow.id,
+      name: "Picked Harness B",
+    });
+  });
 });
 
 /**

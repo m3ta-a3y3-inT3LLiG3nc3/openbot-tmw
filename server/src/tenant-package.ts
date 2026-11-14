@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, ne, or } from "drizzle-orm";
 import { parse } from "yaml";
 import { DEPLOYMENT_ROUTES } from "./computer/deployment-routes";
 import type { Database } from "./db/client";
@@ -864,6 +864,27 @@ export async function synchronizeTenantPackage(
           ),
         );
     }
+
+    // Re-home installer-managed picked-harness agent when transitioning across packages or editions
+    await transaction
+      .update(agentTable)
+      .set({ packageId: deploymentPackage.id })
+      .where(
+        and(
+          eq(agentTable.id, "picked-harness"),
+          or(
+            isNull(agentTable.packageId),
+            ne(agentTable.packageId, deploymentPackage.id),
+          ),
+          inArray(
+            agentTable.id,
+            transaction
+              .select({ agentId: agentProfiles.agentId })
+              .from(agentProfiles)
+              .where(isNull(agentProfiles.ownerUserId)),
+          ),
+        ),
+      );
 
     for (const agent of tenantPackage.agents) {
       const updatedAt = new Date();
