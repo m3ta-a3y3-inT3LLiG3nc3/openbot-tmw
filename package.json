@@ -32,7 +32,7 @@
     "diagram": "bun scripts/architecture-diagram.ts",
     "composio:smoke": "bun scripts/composio-smoke.ts",
     "mock:knowledge": "bun scripts/mock-knowledge-mcp.ts",
-    "agent:antigravity": ".venv-antigravity/bin/uvicorn src.main:app --app-dir agent-antigravity --host 0.0.0.0 --port 4214"
+    "agent:antigravity": ".venv-antigravity/bin/uvicorn src.main:app --app-dir agent-antigravity --host 127.0.0.1 --port 4214"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.10",
