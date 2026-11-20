@@ -54,9 +54,10 @@ This document records the complete wiring, active services, endpoints, and archi
   ```env
   OPENBOT_INTELLIGENCE_MEMORY=on
   M3TA_OS_URL=http://localhost:8000
-  M3TA_OS_MCP_KEY=openbot-m3ta-os-key
+  M3TA_OS_MCP_KEY=<your-open-brain-key>
   MANAGED_AGENT_AG_UI_URL=http://localhost:4214
   ```
+  The real Open Brain key belongs in a gitignored `.env` or the OS keychain.
 
 ---
 
@@ -85,6 +86,6 @@ curl -s http://localhost:8000/health
 curl -s -X POST http://localhost:8000/ \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  -H "x-brain-key: openbot-m3ta-os-key" \
+  -H "x-brain-key: <your-open-brain-key>" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ```
